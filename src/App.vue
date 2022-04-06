@@ -14,9 +14,15 @@
         <a href="" style="font-size: 10px; color: grey">登录</a>
       </div></el-header
     >
-    <el-main style="padding:0">
+    <el-main style="padding: 0">
       <router-view />
     </el-main>
+    <el-footer style="height: 30px;">
+      @2018-2022 最终解释权归Blackcateee所有 git地址
+      <a href="https://github.com/Blackcateee/cloudmusic-vue" target="_blank"
+        >https://github.com/Blackcateee/cloudmusic-vue</a
+      ></el-footer
+    >
   </el-container>
 </template>
 
@@ -40,6 +46,26 @@ export default defineComponent({
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+.el-footer {
+  border-top: 1px solid black;
+  background-color: rgb(184, 8, 8);
+  color: white;
+  text-align: center;
+  justify-content: center;
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.el-footer a {
+  text-decoration: none;
+  color: white;
+  padding-left: 10px;
+}
+.el-footer a:hover {
+  text-decoration: underline;
 }
 .el-header {
   background-color: #333;
@@ -74,5 +100,6 @@ export default defineComponent({
   background-color: #e9eef3;
   color: #333;
   text-align: center;
+  overflow: hidden;
 }
 </style>

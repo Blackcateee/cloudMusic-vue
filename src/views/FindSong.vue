@@ -2,11 +2,11 @@
   <div class="nav">
     <router-link to="/">推荐</router-link>
     <router-link to="">排行榜</router-link>
-    <router-link to="">歌单</router-link>
+    <router-link to="/sheet">歌单</router-link>
     <router-link to="/singer">歌手</router-link>
     <router-link to="">新碟上架</router-link>
   </div>
- <router-view />
+ <router-view  style="overflow:hidden"/>
 </template>
 
 <script>

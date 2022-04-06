@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import FindSong from '../views/FindSong.vue'
 import Singer from '../views/FindSongDetail/Singer.vue'
 import Recommend from '../views/FindSongDetail/Recommend.vue'
+import  Sheet from '../views/FindSongDetail/Sheet.vue'
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
       path: '/singer',
       name: 'Singer',
       component: Singer,
+    },
+    {
+      path: '/sheet',
+      name: 'Sheet',
+      component: Sheet,
     },
     {
       path: '/',
