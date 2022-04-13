@@ -21,7 +21,7 @@
       </div>
       <div class="individualization">
         <!--歌单组件 -->
-        <song-sheet :song-sheet="songSheet.slice(0,4)"></song-sheet>
+        <song-sheet :song-sheet="songSheetByAmount"></song-sheet>
       </div>
       <div class="recommend-top">
         <el-icon color="red" :size="20"><flag /></el-icon>
@@ -44,14 +44,24 @@
       </div>
       <div class="singer">
         <div class="singer-top">
-          <p style="font-weight:bold">推荐歌手</p>
+          <p style="font-weight: bold">推荐歌手</p>
           <a href="/#/singer">查看全部></a>
         </div>
         <div class="singer-card" v-for="item in singer" :key="item">
-          <img class="singer-img" :src="item.imgUrl" alt="" width="62" height="62"/>
+          <img
+            class="singer-img"
+            :src="item.imgUrl"
+            alt=""
+            width="62"
+            height="62"
+          />
           <div class="content">
-            <span style="padding-top:5px;font-weight:bold">{{ item.name }}</span>
-            <span style="padding-top:10px;font-size:10px">{{ item.remark }}</span>
+            <span style="padding-top: 5px; font-weight: bold">{{
+              item.name
+            }}</span>
+            <span style="padding-top: 10px; font-size: 10px">{{
+              item.remark
+            }}</span>
           </div>
         </div>
       </div>
@@ -63,6 +73,7 @@
 import { defineComponent } from "vue";
 import { Flag } from "@element-plus/icons-vue";
 import SongSheet from "../../components/SongSheet.vue";
+import axios from "axios";
 
 export default defineComponent({
   components: {
@@ -156,7 +167,24 @@ export default defineComponent({
         remark: "雅俗共赏",
       },
     ],
+    songSheetByAmount: [],
   }),
+  mounted() {
+    axios({
+      method: "GET",
+      url: "/song/listByAmount",
+    }).then((res) => {
+      this.songSheetByAmount = res.data;
+      console.log(res.data);
+    });
+    axios({
+      method: "GET",
+      url: "/song/list",
+    }).then((res) => {
+      this.songSheet = res.data;
+      console.log(res.data);
+    });
+  },
 });
 </script>
 
@@ -169,12 +197,12 @@ export default defineComponent({
   font-size: 10px;
   padding: 5px;
 }
-.singer-top a{
+.singer-top a {
   text-decoration: none;
   margin-left: auto;
   color: #000;
 }
-.singer-top a:hover{
+.singer-top a:hover {
   text-decoration: underline;
 }
 .content {
@@ -187,7 +215,7 @@ export default defineComponent({
   margin-left: 30px;
 }
 .singer-img {
-  height:100%;
+  height: 100%;
 }
 .singer-card {
   margin: 10px;

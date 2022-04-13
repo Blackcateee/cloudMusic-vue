@@ -12,8 +12,8 @@
       <el-pagination
         background
         layout="prev, pager, next"
-        :total="75"
-        :page-size="25"
+        :total="page.total"
+        :page-size="pageInfo.pageSize"
         @current-change="handleCurrentChange"
       />
     </div>
@@ -23,6 +23,7 @@
 <script>
 import { defineComponent } from "vue";
 import SongSheet from "../../components/SongSheet.vue";
+import axios from "axios";
 
 export default defineComponent({
   components: {
@@ -633,20 +634,40 @@ export default defineComponent({
         playNum: 100,
       },
     ],
+    pageInfo: {
+      pageSize: 10,
+      pageNum: 1,
+    },
+    page: {
+      total: 0,
+    }
   }),
   methods: {
     handleCurrentChange(val)  {
-      if(val == 1) {
-        this.songSheet = this.songSheet1;
-      }
-      else if(val == 2) {
-        this.songSheet = this.songSheet2;
-      } 
-      else if(val == 3) {
-        this.songSheet = this.songSheet3;
-      }
+      this.pageInfo.pageNum = val;
+      this.pageInfo.pageSize = 10;
+      axios({
+        method: "POST",
+        url: "/song/listAll",
+        data: this.pageInfo,
+      }).then(res =>{
+        this.songSheet = res.data.sheet;
+        this.page.total = res.data.num;
+        console.log(res);
+      })
     },
   },
+  mounted() {
+     axios({
+        method: "POST",
+        url: "/song/listAll",
+        data: this.pageInfo,
+      }).then(res =>{
+        this.songSheet = res.data.sheet;
+        this.page.total = res.data.num;
+        console.log(res);
+      })
+  }
 });
 </script>
 

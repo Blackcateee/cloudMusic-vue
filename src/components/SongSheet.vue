@@ -1,15 +1,15 @@
 <template>
   <div class="song-sheet">
     <div v-for="item in songSheet" :key="item" class="sheet">
-      <img :src="item.url" alt="" />
+      <img :src="item.listImg" alt="" />
       <div class="img-bottom">
         <div>
           <el-icon><service /></el-icon>
-          {{ item.playNum }}万
+          {{ item.listAmount }}
         </div>
         <el-icon class="playBTN"><video-play /></el-icon>
       </div>
-      <a href="">{{ item.describe }}</a>
+      <a href="">{{ item.listTitle }}</a>
     </div>
   </div>
 </template>
