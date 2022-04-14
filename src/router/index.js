@@ -2,7 +2,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import FindSong from '../views/FindSong.vue'
 import Singer from '../views/FindSongDetail/Singer.vue'
 import Recommend from '../views/FindSongDetail/Recommend.vue'
-import  Sheet from '../views/FindSongDetail/Sheet.vue'
+import Sheet from '../views/FindSongDetail/Sheet.vue'
+import SongSheetDetail from '../views/SongSheetDetail/SongSheetDetail.vue'
 
 const routes = [
   {
@@ -23,6 +24,12 @@ const routes = [
       path: '/',
       name: 'Recommend',
       component: Recommend,
+    },
+    {
+      path: '/songSheetDetail/:listId',
+      name: 'songSheetDetail',
+      props: true,
+      component: SongSheetDetail
     }
     ]
   },
@@ -33,7 +40,7 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/MySong.vue')
-  }
+  },
 ]
 
 const router = createRouter({

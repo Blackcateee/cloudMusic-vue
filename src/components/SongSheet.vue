@@ -5,11 +5,15 @@
       <div class="img-bottom">
         <div>
           <el-icon><service /></el-icon>
-          {{ item.listAmount }}
+          {{
+            item.listAmount / 10000 > 1
+              ? ~~(item.listAmount / 10000) + '万'
+              : item.listAmount
+          }}
         </div>
         <el-icon class="playBTN"><video-play /></el-icon>
       </div>
-      <a href="">{{ item.listTitle }}</a>
+      <a :href="'/#/songSheetDetail/' + item.listId">{{ item.listTitle }}</a>
     </div>
   </div>
 </template>
@@ -33,9 +37,10 @@ export default defineComponent({
   flex-direction: column;
   width: 140px;
   height: 180px;
-  margin: 20px 60px 0 60px;
+  margin: 20px 60px 30px 60px;
   word-break: break-all;
   text-overflow: clip;
+  text-align: left;
 }
 .sheet a {
   text-decoration: none;

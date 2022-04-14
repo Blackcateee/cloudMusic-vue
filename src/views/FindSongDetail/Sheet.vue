@@ -635,7 +635,7 @@ export default defineComponent({
       },
     ],
     pageInfo: {
-      pageSize: 10,
+      pageSize: 35,
       pageNum: 1,
     },
     page: {
@@ -645,7 +645,7 @@ export default defineComponent({
   methods: {
     handleCurrentChange(val)  {
       this.pageInfo.pageNum = val;
-      this.pageInfo.pageSize = 10;
+      this.pageInfo.pageSize = 35;
       axios({
         method: "POST",
         url: "/song/listAll",

@@ -17,22 +17,25 @@
     <el-main style="padding: 0">
       <router-view />
     </el-main>
-    <el-footer style="height: 30px;">
+    <el-footer style="height: 30px; padding-bottom: 10px">
       @2018-2022 最终解释权归Blackcateee所有 git地址
       <a href="https://github.com/Blackcateee/cloudmusic-vue" target="_blank"
         >https://github.com/Blackcateee/cloudmusic-vue</a
       ></el-footer
     >
   </el-container>
+  <AudioPlayer />
 </template>
 
 <script>
 import { defineComponent } from "vue";
 import { Search } from "@element-plus/icons-vue";
+import AudioPlayer from "./components/AudioPlayer.vue"
 
 export default defineComponent({
   components: {
     Search,
+    AudioPlayer,
   },
   data: () => ({
     input: "",
