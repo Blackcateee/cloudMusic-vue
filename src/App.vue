@@ -24,7 +24,7 @@
       ></el-footer
     >
   </el-container>
-  <AudioPlayer />
+  <AudioPlayer v-if="isRefreash" />
 </template>
 
 <script>
@@ -39,7 +39,21 @@ export default defineComponent({
   },
   data: () => ({
     input: "",
+    isRefreash: true,
   }),
+  provide() {
+    return {
+      reload: this.reload
+    }
+  },
+  methods: {
+    reload() {
+      this.isRefreash = false;
+      this.$nextTick(() => {
+        this.isRefreash =true;
+      })
+    }
+  }
 });
 </script>
 

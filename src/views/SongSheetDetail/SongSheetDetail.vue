@@ -111,6 +111,7 @@ export default defineComponent({
     ArrowDown,
   },
   props: ["listId"],
+  inject: ["reload"],
   data: () => ({
     open: true,
     sheet: {},
@@ -161,9 +162,11 @@ export default defineComponent({
     playMusic(row) {
       this.$store.commit("audioAttributeMutations", {
         url: row.songUrl,
-        duration: "",
+        name: row.songName,
+        picture: row.songAlbumPicture.replaceAll('["',"").replaceAll('"]',""),
+        singer: row.songArtist,
       });
-      console.log(localStorage.getItem("songUrl"));
+      this.reload();
     },
   },
 });

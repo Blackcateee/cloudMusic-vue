@@ -2,33 +2,72 @@
   <div class="player">
     <audio
       ref="audio"
-      :src="this.$store.state.audioAttributeState.url"
+      :src="url"
       @timeupdate="timeChange"
       @canplay="getAttribute"
+      @play="changeIcon"
+      @pause="changeIcon"
       controls="controls"
-      hidden= "hidden"
+      hidden="hidden"
     ></audio>
-    <el-slider v-model="progress" @change="progressChange" style="width: 250px; margin: 30px" />
-    {{ currentTimeMin }}:{{ currentTimeSec }}
-    {{ durationMin }}:{{ durationSec }}
-    <el-button @click="playMusic">播放</el-button>
-    <el-button @click="pauseMusic">暂停</el-button>
+    <el-icon v-if="play" style="cursor:pointer" :size="45"><video-play @click="playMusic" /></el-icon>
+    <el-icon v-if="pause" style="cursor:pointer" :size="45"><video-pause @click="pauseMusic" /></el-icon>
+    <img
+      :src="picture"
+      alt=""
+      width="40"
+      height="40"
+      style="margin: 0 20px"
+    />
+    <div class="slider">
+      <div class="name">
+        <p style="color: white">
+          {{ name }}
+        </p>
+        <p style="color: white">
+          {{ singer }}
+        </p>
+      </div>
+      <el-slider v-model="progress" @change="progressChange" />
+    </div>
+    <div style="margin: 30px 10px 0 10px">
+      {{ currentTimeMin }}:{{ currentTimeSec }} / {{ durationMin }}:{{
+        durationSec
+      }}
+    </div>
   </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
+import { VideoPlay, VideoPause } from "@element-plus/icons-vue";
 
 export default defineComponent({
+  components: {
+    VideoPlay,
+    VideoPause,
+  },
   data: () => ({
     input: "",
-    currentTimeSec: "",
-    currentTimeMin: "",
-    durationMin: "",
-    durationSec: "",
+    currentTimeSec: "00",
+    currentTimeMin: "00",
+    durationMin: "00",
+    durationSec: "00",
     progress: 0,
+    play: true,
+    pause: false,
+    url: "",
+    singer: "",
+    name: "",
+    picture: "",
   }),
-   methods: {
+  created() {
+    this.url = localStorage.getItem("songUrl");
+    this.name = localStorage.getItem("name");
+    this.singer = localStorage.getItem("singer");
+    this.picture = localStorage.getItem("picture");
+  },
+  methods: {
     getAttribute() {
       this.durationSec = parseInt(this.$refs.audio.duration % 60);
       this.durationMin = parseInt(this.$refs.audio.duration / 60);
@@ -43,18 +82,28 @@ export default defineComponent({
         (this.$refs.audio.currentTime / this.$refs.audio.duration) * 100
       );
     },
+    changeIcon() {
+      this.play = !this.play;
+      this.pause = !this.pause;
+    },
     playMusic() {
       this.$refs.audio.play();
+      // this.play = !this.play;
+      // this.pause = !this.pause;
     },
     pauseMusic() {
       this.$refs.audio.pause();
+      // this.play = !this.play;
+      // this.pause = !this.pause;
     },
     progressChange() {
-      this.$refs.audio.currentTime = Math.round(this.progress / 100 * this.$refs.audio.duration);
+      this.$refs.audio.currentTime = Math.round(
+        (this.progress / 100) * this.$refs.audio.duration
+      );
       this.$refs.audio.play();
-    }
+    },
   },
-})
+});
 </script>
 
 <style scoped>
@@ -62,7 +111,17 @@ export default defineComponent({
   margin-bottom: 15px;
   width: 350px;
 }
+.slider {
+  display: flex;
+  flex-direction: column;
+  font-size: 10px;
+  height: 100%;
+  width: 600px;
+}
 .player {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   position: fixed;
   bottom: -40px;
   height: 50px;
