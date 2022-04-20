@@ -9,16 +9,15 @@
       @pause="changeIcon"
       controls="controls"
       hidden="hidden"
+      @ended="playMusic"
     ></audio>
-    <el-icon v-if="play" style="cursor:pointer" :size="45"><video-play @click="playMusic" /></el-icon>
-    <el-icon v-if="pause" style="cursor:pointer" :size="45"><video-pause @click="pauseMusic" /></el-icon>
-    <img
-      :src="picture"
-      alt=""
-      width="40"
-      height="40"
-      style="margin: 0 20px"
-    />
+    <el-icon v-if="play" style="cursor: pointer" :size="45"
+      ><video-play @click="playMusic"
+    /></el-icon>
+    <el-icon v-if="pause" style="cursor: pointer" :size="45"
+      ><video-pause @click="pauseMusic"
+    /></el-icon>
+    <img :src="picture" alt="" width="40" height="40" style="margin: 0 20px" />
     <div class="slider">
       <div class="name">
         <p style="color: white">
@@ -73,7 +72,7 @@ export default defineComponent({
       this.durationMin = parseInt(this.$refs.audio.duration / 60);
       this.currentTimeSec = parseInt(this.$refs.audio.currentTime % 60);
       this.currentTimeMin = parseInt(this.$refs.audio.currentTime / 60);
-      this.$refs.audio.play();
+      // this.$refs.audio.play();
     },
     timeChange() {
       this.currentTimeSec = parseInt(this.$refs.audio.currentTime % 60);

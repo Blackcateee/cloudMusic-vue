@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <div class="detail" style="width: 70%">
+    <div class="detail" :style="show ? '' :'width: 70%'">
       <div class="sheet">
         <img
           class="sheet-img"
@@ -16,7 +16,7 @@
             <el-button type="primary"
               ><el-icon><video-play /></el-icon>播放</el-button
             >
-            <el-button
+            <el-button @click="collectList"
               ><el-icon><folder-add /></el-icon>收藏</el-button
             >
             <el-button
@@ -67,7 +67,7 @@
             <template #default="scope">
               <el-icon
                 class="playBTN"
-                @click="handleEdit(scope.$index, scope.row)"
+                @click="collectSong(scope.row)"
                 ><folder-Add
               /></el-icon>
               <el-icon
@@ -85,7 +85,7 @@
         </el-table>
       </div>
     </div>
-    <div class="recommend">推荐</div>
+    <div v-if="!show" class="recommend">推荐</div>
   </div>
 </template>
 
@@ -110,8 +110,8 @@ export default defineComponent({
     Comment,
     ArrowDown,
   },
-  props: ["listId"],
-  inject: ["reload"],
+  props: ["listId","show"],
+  inject: ["reload","play"],
   data: () => ({
     open: true,
     sheet: {},
@@ -167,6 +167,10 @@ export default defineComponent({
         singer: row.songArtist,
       });
       this.reload();
+      this.play();
+    },
+    collectList() {
+      
     },
   },
 });

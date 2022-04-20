@@ -15,14 +15,17 @@
       </div>
       <!--歌单组件 -->
       <song-sheet :song-sheet="songSheet"></song-sheet>
-      <div class="recommend-top">
-        <el-icon color="red" :size="20"><flag /></el-icon>
-        <p style="font-size: 30px; margin-left: 10px">个性化推荐</p>
+      <div v-if="logined">
+        <div class="recommend-top">
+          <el-icon color="red" :size="20"><flag /></el-icon>
+          <p style="font-size: 30px; margin-left: 10px">个性化推荐</p>
+        </div>
+        <div class="individualization">
+          <!--歌单组件 -->
+          <song-sheet :song-sheet="songSheetByAmount"></song-sheet>
+        </div>
       </div>
-      <div class="individualization">
-        <!--歌单组件 -->
-        <song-sheet :song-sheet="songSheetByAmount"></song-sheet>
-      </div>
+
       <div class="recommend-top">
         <el-icon color="red" :size="20"><flag /></el-icon>
         <p style="font-size: 30px; margin-left: 10px">新歌上架</p>
@@ -36,11 +39,27 @@
       </div>
     </div>
     <div class="login">
-      <div class="login-btn">
+      <div v-if="!logined" class="login-btn">
         登录即可享受无限收藏的乐趣
-        <el-button type="danger" style="width: 50px; margin-top: 30px">
+        <el-button
+          type="danger"
+          style="width: 50px; margin-top: 30px"
+          @click="loginDialogOpen"
+        >
           登录
         </el-button>
+      </div>
+      <div v-if="logined" class="userDetail">
+        <img
+          width="80"
+          height="80"
+          src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220419%2F%2Fs3%2Faws4_request&X-Amz-Date=20220419T091918Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d87fd2d71c8282b611d4789b0e66cd9c85efac593cb745ba2d9f8528beec30af"
+          alt=""
+        />
+        <div class="btn">
+          <span class="userName">返雨</span>
+          <el-button type="primary" @click="toMySong">我的音乐</el-button>
+        </div>
       </div>
       <div class="singer">
         <div class="singer-top">
@@ -80,6 +99,7 @@ export default defineComponent({
     Flag,
     SongSheet,
   },
+  inject: ["loginDialogOpen"],
   data: () => ({
     images: [
       "http://p1.music.126.net/U-klDW80305UEuVErdMpSw==/109951167239238686.jpg?imageView&quality=89",
@@ -168,8 +188,12 @@ export default defineComponent({
       },
     ],
     songSheetByAmount: [],
+    logined: false,
   }),
   mounted() {
+    if (localStorage.getItem("user") != null) {
+      this.logined = true;
+    }
     axios({
       method: "GET",
       url: "/song/listByAmount",
@@ -185,10 +209,34 @@ export default defineComponent({
       console.log(res.data);
     });
   },
+  methods: {
+    toMySong() {
+      this.$router.push("mySong");
+    }
+  }
 });
 </script>
 
 <style scoped>
+.userName {
+  font-weight: bold;
+}
+.userDetail {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  background-image: linear-gradient(white, rgb(212, 211, 211));
+}
+.userDetail img {
+  margin: 10px;
+  padding: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+.userDetail .btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
 .singer-top {
   display: flex;
   flex-direction: row;

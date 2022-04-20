@@ -11,7 +11,33 @@
             <el-icon class="el-input__icon"><search /></el-icon>
           </template>
         </el-input>
-        <a href="" style="font-size: 10px; color: grey">登录</a>
+        <a
+          v-if="!logined"
+          style="font-size: 10px; color: grey; cursor: pointer"
+          @click="loginDialogOpen"
+          >登录</a
+        >
+        <div class="userImg" v-if="logined">
+          
+          <el-dropdown>
+            <img
+            style="border-radius: 50%"
+            width="40"
+            height="40"
+            src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220419%2F%2Fs3%2Faws4_request&X-Amz-Date=20220419T091918Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d87fd2d71c8282b611d4789b0e66cd9c85efac593cb745ba2d9f8528beec30af"
+            alt=""
+          />
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item>Action 1</el-dropdown-item>
+                <el-dropdown-item>Action 2</el-dropdown-item>
+                <el-dropdown-item>Action 3</el-dropdown-item>
+                <el-dropdown-item>Action 4</el-dropdown-item>
+                <el-dropdown-item @click="logout">退出</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </div></el-header
     >
     <el-main style="padding: 0">
@@ -24,36 +50,76 @@
       ></el-footer
     >
   </el-container>
-  <AudioPlayer v-if="isRefreash" />
+  <AudioPlayer ref="AudioPlayer" v-if="isRefreash" />
+  <el-dialog v-model="dialogVisible" title="登录" width="30%">
+    <Login ref="login" @close="close" />
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="login">登录</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <el-backtop :right="100" :bottom="100" />
 </template>
 
 <script>
 import { defineComponent } from "vue";
 import { Search } from "@element-plus/icons-vue";
-import AudioPlayer from "./components/AudioPlayer.vue"
+import AudioPlayer from "./components/AudioPlayer.vue";
+import Login from "./components/Login.vue";
 
 export default defineComponent({
   components: {
     Search,
     AudioPlayer,
+    Login,
   },
   data: () => ({
     input: "",
     isRefreash: true,
+    dialogVisible: false,
+    logined: false,
   }),
+  mounted() {
+    if (localStorage.getItem("user") != null) {
+      this.logined = true;
+    }
+  },
   provide() {
     return {
-      reload: this.reload
-    }
+      reload: this.reload,
+      loginDialogOpen: this.loginDialogOpen,
+      play: this.play,
+    };
   },
   methods: {
     reload() {
       this.isRefreash = false;
       this.$nextTick(() => {
-        this.isRefreash =true;
-      })
-    }
-  }
+        this.isRefreash = true;
+      });
+    },
+    play() {
+      setTimeout(() => {
+        this.$refs.AudioPlayer.playMusic();
+      }, 30);
+    },
+    login() {
+      this.dialogVisible = false;
+      this.$refs.login.login();
+    },
+    close() {
+      this.dialogVisible = false;
+    },
+    loginDialogOpen() {
+      this.dialogVisible = true;
+    },
+    logout() {
+      localStorage.removeItem("user");
+      this.$router.go(0);
+    },
+  },
 });
 </script>
 
@@ -63,6 +129,15 @@ export default defineComponent({
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+.userImg {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.userImg img {
+  margin-left: 30px;
+  cursor: pointer;
 }
 .el-footer {
   border-top: 1px solid black;
