@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <div class="detail" :style="show ? '' :'width: 70%'">
+    <div class="detail" :style="show ? '' : 'width: 70%'">
       <div class="sheet">
         <img
           class="sheet-img"
@@ -19,10 +19,10 @@
             <el-button @click="collectList"
               ><el-icon><folder-add /></el-icon>收藏</el-button
             >
-            <el-button
+            <el-button @click="share"
               ><el-icon><share /></el-icon>分享</el-button
             >
-            <el-button
+            <el-button @click="downloadList"
               ><el-icon><download /></el-icon>下载</el-button
             >
             <el-button
@@ -48,9 +48,7 @@
           <el-table-column type="index" width="50" />
           <el-table-column width="50">
             <template #default="scope">
-              <el-icon
-                class="playBTN"
-                @click="playMusic(scope.row)"
+              <el-icon class="playBTN" @click="playMusic(scope.row)"
                 ><video-play
               /></el-icon>
             </template>
@@ -65,9 +63,7 @@
           <el-table-column prop="songAlbum" label="专辑" width="230" />
           <el-table-column>
             <template #default="scope">
-              <el-icon
-                class="playBTN"
-                @click="collectSong(scope.row)"
+              <el-icon class="playBTN" @click="addSong(scope.row)"
                 ><folder-Add
               /></el-icon>
               <el-icon
@@ -75,22 +71,32 @@
                 @click="handleEdit(scope.$index, scope.row)"
                 ><share
               /></el-icon>
-              <el-icon
-                class="playBTN"
-                @click="handleEdit(scope.$index, scope.row)"
+              <el-icon class="playBTN" @click="download(scope.row)"
                 ><download
               /></el-icon>
             </template>
           </el-table-column>
         </el-table>
       </div>
+      <CommentArea v-if="refreashCommentArea" :songSheetId="sheet.listId" />
     </div>
     <div v-if="!show" class="recommend">推荐</div>
   </div>
+  <el-dialog v-model="dialogVisible" width="30%">
+    <AddFolder :songId="songId" />
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false"
+          >关闭</el-button
+        >
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
 import { defineComponent } from "vue";
+import AddFolder from "../../components/AddFolder.vue";
 import {
   VideoPlay,
   Share,
@@ -100,6 +106,8 @@ import {
   ArrowDown,
 } from "@element-plus/icons-vue";
 import axios from "axios";
+import { ElMessage } from "element-plus";
+import CommentArea from "../../components/Comment.vue";
 
 export default defineComponent({
   components: {
@@ -109,12 +117,16 @@ export default defineComponent({
     Download,
     Comment,
     ArrowDown,
+    AddFolder,
+    CommentArea,
   },
-  props: ["listId","show"],
-  inject: ["reload","play"],
+  props: ["listId", "show"],
+  inject: ["reloadPlayer", "play"],
   data: () => ({
+    songId: "",
     open: true,
     sheet: {},
+    dialogVisible: false,
     tableData: [
       {
         date: "2016-05-03",
@@ -137,7 +149,14 @@ export default defineComponent({
         address: "No. 189, Grove St, Los Angeles",
       },
     ],
+    refreashCommentArea: true,
   }),
+  provide() {
+    return {
+      close: this.close,
+      refreash: this.refreash,
+    };
+  },
   mounted() {
     axios({
       method: "GET",
@@ -156,21 +175,90 @@ export default defineComponent({
     });
   },
   methods: {
+    refreash() {
+      this.refreashCommentArea = false;
+      this.$nextTick(() => {
+        this.refreashCommentArea = true;
+      })
+    },
+    downloadList() {
+      this.tableData.forEach((e) => {
+        this.download(e);
+      });
+    },
+    close() {
+      this.dialogVisible = false;
+    },
+    addSong(row) {
+      this.songId = row.songId;
+      this.dialogVisible = true;
+    },
+    download(row) {
+      fetch(row.songUrl)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const a = document.createElement("a");
+          document.body.appendChild(a);
+          a.style.display = "none";
+          // 使用获取到的blob对象创建的url
+          const url = window.URL.createObjectURL(blob);
+          a.href = url;
+          // 指定下载的文件名，就‘’写默认的下载名字。不指定他就根据上传名直接下载了宝。
+          a.download = row.songName;
+          a.click();
+          document.body.removeChild(a);
+          // 移除blob对象的url
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(() => {
+          ElMessage.error("歌曲暂不支持下载");
+        });
+    },
     changeIntroduce() {
       this.open = !this.open;
+    },
+    share() {
+      // 这里注释的方式是把url里的路径去掉了，也可以自己修改路径以及添加参数
+      // let invitelink = location.href.replace(this.$route.path,'') + "/register?invitecode="
+      let invitelink = location.href;
+      this.$copyText(invitelink).then(
+        () => {
+          ElMessage.success("连接已复制到粘贴板，分享给朋友吧！"); // 这里可以换成提示信息，比如：已成功复制到剪切板
+        },
+        (err) => {
+          console.log(err); // 同上
+        }
+      );
     },
     playMusic(row) {
       this.$store.commit("audioAttributeMutations", {
         url: row.songUrl,
         name: row.songName,
-        picture: row.songAlbumPicture.replaceAll('["',"").replaceAll('"]',""),
+        picture: row.songAlbumPicture.replaceAll('["', "").replaceAll('"]', ""),
         singer: row.songArtist,
       });
-      this.reload();
+      this.reloadPlayer();
       this.play();
     },
     collectList() {
-      
+      if (localStorage.getItem("user") != null) {
+        axios({
+          method: "GET",
+          url: "/user/addUserCollection",
+          params: {
+            userName: localStorage.getItem("user"),
+            songSheetId: this.listId,
+          },
+        }).then((res) => {
+          if (res.data.success) {
+            ElMessage.success(res.data.message);
+          } else {
+            ElMessage.error(res.data.message);
+          }
+        });
+      } else {
+        ElMessage.error("请先登录");
+      }
     },
   },
 });

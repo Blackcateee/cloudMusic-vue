@@ -18,21 +18,18 @@
           >登录</a
         >
         <div class="userImg" v-if="logined">
-          
           <el-dropdown>
             <img
-            style="border-radius: 50%"
-            width="40"
-            height="40"
-            src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220419%2F%2Fs3%2Faws4_request&X-Amz-Date=20220419T091918Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d87fd2d71c8282b611d4789b0e66cd9c85efac593cb745ba2d9f8528beec30af"
-            alt=""
-          />
+              style="border-radius: 50%"
+              width="40"
+              height="40"
+              src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220419%2F%2Fs3%2Faws4_request&X-Amz-Date=20220419T091918Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d87fd2d71c8282b611d4789b0e66cd9c85efac593cb745ba2d9f8528beec30af"
+              alt=""
+            />
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>Action 1</el-dropdown-item>
-                <el-dropdown-item>Action 2</el-dropdown-item>
-                <el-dropdown-item>Action 3</el-dropdown-item>
-                <el-dropdown-item>Action 4</el-dropdown-item>
+                <el-dropdown-item @click="goToMySong">我的音乐</el-dropdown-item>
+                <el-dropdown-item>个人空间</el-dropdown-item>
                 <el-dropdown-item @click="logout">退出</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -41,7 +38,7 @@
       </div></el-header
     >
     <el-main style="padding: 0">
-      <router-view />
+      <router-view v-if="isRefreash" />
     </el-main>
     <el-footer style="height: 30px; padding-bottom: 10px">
       @2018-2022 最终解释权归Blackcateee所有 git地址
@@ -50,7 +47,7 @@
       ></el-footer
     >
   </el-container>
-  <AudioPlayer ref="AudioPlayer" v-if="isRefreash" />
+  <AudioPlayer ref="AudioPlayer" v-if="isRefreashPlayer" />
   <el-dialog v-model="dialogVisible" title="登录" width="30%">
     <Login ref="login" @close="close" />
     <template #footer>
@@ -80,6 +77,7 @@ export default defineComponent({
     isRefreash: true,
     dialogVisible: false,
     logined: false,
+    isRefreashPlayer: true,
   }),
   mounted() {
     if (localStorage.getItem("user") != null) {
@@ -89,11 +87,21 @@ export default defineComponent({
   provide() {
     return {
       reload: this.reload,
+      reloadPlayer: this.reloadPlayer,
       loginDialogOpen: this.loginDialogOpen,
       play: this.play,
     };
   },
   methods: {
+    goToMySong() {
+      this.$router.push("/mySong");  
+    },
+    reloadPlayer() {
+      this.isRefreashPlayer = false;
+      this.$nextTick(() => {
+        this.isRefreashPlayer = true;
+      });
+    },
     reload() {
       this.isRefreash = false;
       this.$nextTick(() => {
