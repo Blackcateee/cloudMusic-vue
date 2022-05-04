@@ -78,7 +78,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <CommentArea v-if="refreashCommentArea" :songSheetId="sheet.listId" />
+      <CommentArea v-if="refreashCommentArea" :songSheetId="songSheetId" />
     </div>
     <div v-if="!show" class="recommend">推荐</div>
   </div>
@@ -149,8 +149,12 @@ export default defineComponent({
         address: "No. 189, Grove St, Los Angeles",
       },
     ],
+    songSheetId: "",
     refreashCommentArea: true,
   }),
+  created(){
+    this.songSheetId = this.listId;
+  },
   provide() {
     return {
       close: this.close,

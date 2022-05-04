@@ -5,6 +5,14 @@ import Recommend from '../views/FindSongDetail/Recommend.vue'
 import Sheet from '../views/FindSongDetail/Sheet.vue'
 import SongSheetDetail from '../views/SongSheetDetail/SongSheetDetail.vue'
 import Register from "../views/Register.vue"
+import SingerDetail from "../views/SingerDetail/SingerDetail.vue"
+import BannerList from "../views/manager/BannerList.vue"
+import CommentList from "../views/manager/CommentList.vue"
+import SingerList from "../views/manager/SingerList.vue"
+import SongList from "../views/manager/SongList.vue"
+import SongSheetList from "../views/manager/SongSheetList.vue"
+import UserList from "../views/manager/UserList.vue"
+import Admin from "../views/Admin.vue"
 
 const routes = [
   {
@@ -12,12 +20,12 @@ const routes = [
     name: 'FindSong',
     component: FindSong,
     children: [{
-      path: '/singer',
+      path: 'singer',
       name: 'Singer',
       component: Singer,
     },
     {
-      path: '/sheet',
+      path: 'sheet',
       name: 'Sheet',
       component: Sheet,
     },
@@ -27,10 +35,16 @@ const routes = [
       component: Recommend,
     },
     {
-      path: '/songSheetDetail/:listId',
-      name: 'songSheetDetail',
+      path: 'songSheetDetail/:listId',
+      name: 'SongSheetDetail',
       props: true,
       component: SongSheetDetail
+    },
+    {
+      path: 'singerDetail/:id',
+      name: 'SingerDetail',
+      props: true,
+      component: SingerDetail
     }
     ]
   },
@@ -43,10 +57,48 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/MySong.vue'),
   },
   {
+    path: '/admin',
+    name: 'Admin',
+    component: Admin,
+    children: [
+      {
+        path: '/admin/bannerList',
+        name: 'BannerList',
+        component: BannerList,
+      },
+      {
+        path: '/admin/commentList',
+        name: 'CommentList',
+        component: CommentList,
+      },
+      {
+        path: '/admin/singerList',
+        name: 'SingerList',
+        component: SingerList,
+      },
+      {
+        path: '/admin/',
+        name: 'SongList',
+        component: SongList,
+      },
+      {
+        path: '/admin/songSheetList',
+        name: 'SongSheetList',
+        component: SongSheetList,
+      },
+      {
+        path: '/admin/userList',
+        name: 'UserList',
+        component: UserList,
+      },
+    ]
+  },
+  {
     path: '/register',
     name: 'Registert',
     component: Register,
   },
+
 ]
 
 const router = createRouter({

@@ -1,7 +1,8 @@
 <template>
   <el-container>
-    <el-header>
-      <div id="nav">
+    <el-header v-if="isRefreash">
+      <div style="float:right" v-if="!admin"><el-button class="logOut" @click="logOut" type="primary">退出</el-button></div>
+      <div id="nav" v-if="admin">
         <div class="logo">青听</div>
         <router-link to="/">发现音乐</router-link>
         <router-link to="/mySong">我的音乐</router-link>
@@ -23,12 +24,14 @@
               style="border-radius: 50%"
               width="40"
               height="40"
-              src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220419%2F%2Fs3%2Faws4_request&X-Amz-Date=20220419T091918Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d87fd2d71c8282b611d4789b0e66cd9c85efac593cb745ba2d9f8528beec30af"
+              src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220502%2F%2Fs3%2Faws4_request&X-Amz-Date=20220502T080151Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=63ee49ee180a0de6e544ce8042a31d0489d158389d4121ebade58cdda5dcc240"
               alt=""
             />
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="goToMySong">我的音乐</el-dropdown-item>
+                <el-dropdown-item @click="goToMySong"
+                  >我的音乐</el-dropdown-item
+                >
                 <el-dropdown-item>个人空间</el-dropdown-item>
                 <el-dropdown-item @click="logout">退出</el-dropdown-item>
               </el-dropdown-menu>
@@ -47,7 +50,11 @@
       ></el-footer
     >
   </el-container>
-  <AudioPlayer ref="AudioPlayer" v-if="isRefreashPlayer" />
+  <div v-if="isRefreash">
+    <div v-if="admin">
+      <AudioPlayer ref="AudioPlayer" v-if="isRefreashPlayer" />
+    </div>
+  </div>
   <el-dialog v-model="dialogVisible" title="登录" width="30%">
     <Login ref="login" @close="close" />
     <template #footer>
@@ -73,6 +80,7 @@ export default defineComponent({
     Login,
   },
   data: () => ({
+    admin: true,
     input: "",
     isRefreash: true,
     dialogVisible: false,
@@ -83,9 +91,15 @@ export default defineComponent({
     if (localStorage.getItem("user") != null) {
       this.logined = true;
     }
+    if (localStorage.getItem("admin") != null) {
+      this.admin = false;
+    } else {
+      this.admin = true;
+    }
   },
   provide() {
     return {
+      changeAdmin: this.changeAdmin,
       reload: this.reload,
       reloadPlayer: this.reloadPlayer,
       loginDialogOpen: this.loginDialogOpen,
@@ -93,8 +107,20 @@ export default defineComponent({
     };
   },
   methods: {
+     logOut() {
+      localStorage.removeItem("admin");
+      this.changeAdmin();
+      this.$router.push("/");
+    },
+    changeAdmin() {
+    if (localStorage.getItem("admin") != null) {
+      this.admin = false;
+    } else {
+      this.admin = true;
+    }
+  },
     goToMySong() {
-      this.$router.push("/mySong");  
+      this.$router.push("/mySong");
     },
     reloadPlayer() {
       this.isRefreashPlayer = false;
@@ -201,5 +227,9 @@ export default defineComponent({
   color: #333;
   text-align: center;
   overflow: hidden;
+}
+.logOut {
+  position: relative;
+  right: 20px;
 }
 </style>

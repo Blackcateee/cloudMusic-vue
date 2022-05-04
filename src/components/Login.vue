@@ -20,7 +20,9 @@
         </el-input>
       </el-form-item>
     </el-form>
-    <a class="toRegister" href="/#/register" @click="closeForm">没有账号？先注册</a>
+    <a class="toRegister" href="/#/register" @click="closeForm"
+      >没有账号？先注册</a
+    >
   </div>
 </template>
 
@@ -28,13 +30,14 @@
 import { defineComponent } from "vue";
 import { Avatar, Lock } from "@element-plus/icons-vue";
 import axios from "axios";
-import { ElMessage } from 'element-plus'
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
   components: {
     Avatar,
     Lock,
   },
+  inject:["changeAdmin"],
   data: () => ({
     formLabelAlign: {
       name: "",
@@ -52,15 +55,39 @@ export default defineComponent({
       this.$emit("close");
     },
     login() {
-      axios({
-        method: "POST",
-        url: "/user/login",
-        data: {
-          userName: this.formLabelAlign.name,
-          userPwd: this.formLabelAlign.pwd,
-        }
-      }).then(res => {
-          if(res.data.success) {
+      if (this.formLabelAlign.name == "admin") {
+        axios({
+          method: "GET",
+          url: "/admin/login",
+          params: {
+            account: this.formLabelAlign.name,
+            pwd: this.formLabelAlign.pwd,
+          },
+        }).then((res) => {
+          if (res.data.success) {
+            ElMessage.success(res.data.message);
+            localStorage.setItem("admin", this.formLabelAlign.name);
+            (this.formLabelAlign = {
+              name: "",
+              pwd: "",
+            }),
+              this.closeForm();
+              this.changeAdmin();
+            this.$router.push("/admin");
+          } else {
+            ElMessage.error(res.data.message);
+          }
+        });
+      } else {
+        axios({
+          method: "POST",
+          url: "/user/login",
+          data: {
+            userName: this.formLabelAlign.name,
+            userPwd: this.formLabelAlign.pwd,
+          },
+        }).then((res) => {
+          if (res.data.success) {
             ElMessage.success(res.data.message);
             localStorage.setItem("user", this.formLabelAlign.name);
             this.closeForm();
@@ -68,9 +95,10 @@ export default defineComponent({
           } else {
             ElMessage.error(res.data.message);
           }
-        })
+        });
+      }
     },
-  }
+  },
 });
 </script>
 

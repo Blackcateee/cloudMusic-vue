@@ -53,7 +53,7 @@
         <img
           width="80"
           height="80"
-          src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220419%2F%2Fs3%2Faws4_request&X-Amz-Date=20220419T091918Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=d87fd2d71c8282b611d4789b0e66cd9c85efac593cb745ba2d9f8528beec30af"
+          src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220502%2F%2Fs3%2Faws4_request&X-Amz-Date=20220502T080151Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=63ee49ee180a0de6e544ce8042a31d0489d158389d4121ebade58cdda5dcc240"
           alt=""
         />
         <div class="btn">
@@ -66,20 +66,20 @@
           <p style="font-weight: bold">推荐歌手</p>
           <a href="/#/singer">查看全部></a>
         </div>
-        <div class="singer-card" v-for="item in singer" :key="item">
+        <div class="singer-card" v-for="item in singer.splice(0,8)" :key="item">
           <img
             class="singer-img"
-            :src="item.imgUrl"
+            :src="item.singerImg.replace('?param=640y300','')"
             alt=""
             width="62"
             height="62"
           />
           <div class="content">
             <span style="padding-top: 5px; font-weight: bold">{{
-              item.name
+              item.singerName
             }}</span>
             <span style="padding-top: 10px; font-size: 10px">{{
-              item.remark
+              item.singerAlias
             }}</span>
           </div>
         </div>
@@ -155,38 +155,7 @@ export default defineComponent({
         playNum: 100,
       },
     ],
-    singer: [
-      {
-        imgUrl:
-          "http://p2.music.126.net/rCsLFXha6SLis0tV7yZ5fA==/109951165588539704.jpg?param=62y62",
-        name: "张惠妹",
-        remark: "台湾歌手张惠妹",
-      },
-      {
-        imgUrl:
-          "http://p1.music.126.net/ATZ8-mOxophKXrLC0iXMZw==/109951163536269820.jpg?param=130y130",
-        name: "许嵩",
-        remark: "雅俗共赏",
-      },
-      {
-        imgUrl:
-          "http://p1.music.126.net/ATZ8-mOxophKXrLC0iXMZw==/109951163536269820.jpg?param=130y130",
-        name: "许嵩",
-        remark: "雅俗共赏",
-      },
-      {
-        imgUrl:
-          "http://p1.music.126.net/ATZ8-mOxophKXrLC0iXMZw==/109951163536269820.jpg?param=130y130",
-        name: "许嵩",
-        remark: "雅俗共赏",
-      },
-      {
-        imgUrl:
-          "http://p1.music.126.net/ATZ8-mOxophKXrLC0iXMZw==/109951163536269820.jpg?param=130y130",
-        name: "许嵩",
-        remark: "雅俗共赏",
-      },
-    ],
+    singer: [],
     songSheetByAmount: [],
     logined: false,
   }),
@@ -207,6 +176,12 @@ export default defineComponent({
     }).then((res) => {
       this.songSheet = res.data;
       console.log(res.data);
+    });
+     axios({
+      method: "GET",
+      url: "/song/getSingerList",
+    }).then((res) => {
+      this.singer = res.data;
     });
   },
   methods: {
