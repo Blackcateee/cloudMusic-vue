@@ -2,7 +2,7 @@
     <div class="menu">
       <el-col :span="3" class="left-menu">
         <el-menu
-          style="height: 929px"
+          style="height: 2500px"
           active-text-color="#ffd04b"
           background-color="#545c64"
           class="el-menu-vertical-demo"
@@ -46,9 +46,15 @@ export default defineComponent({
   },
   inject: ["changeAdmin"],
   data: () => ({}),
+  beforeCreate() {
+    if(sessionStorage.getItem("admin") == null) {
+      console.log(123)
+      this.$router.push("/");
+    }
+  },
   methods: {
     logOut() {
-      localStorage.removeItem("admin");
+      sessionStorage.removeItem("admin");
       this.changeAdmin();
       this.$router.push("/");
     },

@@ -13,8 +13,14 @@ import SongList from "../views/manager/SongList.vue"
 import SongSheetList from "../views/manager/SongSheetList.vue"
 import UserList from "../views/manager/UserList.vue"
 import Admin from "../views/Admin.vue"
+import OwnSpace from "../views/OwnSpace.vue"
 
 const routes = [
+  {
+    path: "/ownSpace",
+    name: "OwnSpace",
+    component: OwnSpace,
+  },
   {
     path: '/',
     name: 'FindSong',

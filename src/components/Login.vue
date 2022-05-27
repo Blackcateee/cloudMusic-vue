@@ -66,7 +66,7 @@ export default defineComponent({
         }).then((res) => {
           if (res.data.success) {
             ElMessage.success(res.data.message);
-            localStorage.setItem("admin", this.formLabelAlign.name);
+            sessionStorage.setItem("admin", this.formLabelAlign.name);
             (this.formLabelAlign = {
               name: "",
               pwd: "",

@@ -1,17 +1,29 @@
 <template>
   <el-container>
     <el-header v-if="isRefreash">
-      <div style="float:right" v-if="!admin"><el-button class="logOut" @click="logOut" type="primary">退出</el-button></div>
+      <div style="float: right" v-if="!admin">
+        <el-button class="logOut" @click="logOut" type="primary"
+          >退出</el-button
+        >
+      </div>
       <div id="nav" v-if="admin">
         <div class="logo">青听</div>
         <router-link to="/">发现音乐</router-link>
         <router-link to="/mySong">我的音乐</router-link>
         <router-link to="">下载客户端</router-link>
-        <el-input v-model="input" class="w-50 m-2" placeholder="音乐/视频/歌手">
-          <template #prefix>
-            <el-icon class="el-input__icon"><search /></el-icon>
+        <el-autocomplete
+        v-loading="loading"
+          v-model="state"
+          :fetch-suggestions="querySearchAsync"
+          placeholder="歌曲/歌手/歌单"
+          @select="handleSelect"
+        >
+          <template #default="{ item }">
+            <div class="value" v-html="item.value + '-' + item.artist"></div>
           </template>
-        </el-input>
+          <template #prefix>
+            <el-icon class="el-input__icon"><search /></el-icon> </template
+        ></el-autocomplete>
         <a
           v-if="!logined"
           style="font-size: 10px; color: grey; cursor: pointer"
@@ -24,7 +36,7 @@
               style="border-radius: 50%"
               width="40"
               height="40"
-              src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220502%2F%2Fs3%2Faws4_request&X-Amz-Date=20220502T080151Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=63ee49ee180a0de6e544ce8042a31d0489d158389d4121ebade58cdda5dcc240"
+              :src="user.userImage"
               alt=""
             />
             <template #dropdown>
@@ -32,7 +44,9 @@
                 <el-dropdown-item @click="goToMySong"
                   >我的音乐</el-dropdown-item
                 >
-                <el-dropdown-item>个人空间</el-dropdown-item>
+                <el-dropdown-item @click="goToOwnSpace"
+                  >个人空间</el-dropdown-item
+                >
                 <el-dropdown-item @click="logout">退出</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -72,6 +86,7 @@ import { defineComponent } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import AudioPlayer from "./components/AudioPlayer.vue";
 import Login from "./components/Login.vue";
+import axios from "axios";
 
 export default defineComponent({
   components: {
@@ -80,18 +95,30 @@ export default defineComponent({
     Login,
   },
   data: () => ({
+    state: "",
     admin: true,
     input: "",
     isRefreash: true,
     dialogVisible: false,
     logined: false,
     isRefreashPlayer: true,
+    user: {},
+    results: [],
   }),
   mounted() {
     if (localStorage.getItem("user") != null) {
       this.logined = true;
+      axios({
+        method: "GET",
+        url: "/user/getUserInfo",
+        params: {
+          userName: localStorage.getItem("user"),
+        },
+      }).then((res) => {
+        this.user = res.data;
+      });
     }
-    if (localStorage.getItem("admin") != null) {
+    if (sessionStorage.getItem("admin") != null) {
       this.admin = false;
     } else {
       this.admin = true;
@@ -99,6 +126,7 @@ export default defineComponent({
   },
   provide() {
     return {
+      changeLogin: this.changeLogin,
       changeAdmin: this.changeAdmin,
       reload: this.reload,
       reloadPlayer: this.reloadPlayer,
@@ -107,18 +135,18 @@ export default defineComponent({
     };
   },
   methods: {
-     logOut() {
-      localStorage.removeItem("admin");
+    logOut() {
+      sessionStorage.removeItem("admin");
       this.changeAdmin();
       this.$router.push("/");
     },
     changeAdmin() {
-    if (localStorage.getItem("admin") != null) {
-      this.admin = false;
-    } else {
-      this.admin = true;
-    }
-  },
+      if (sessionStorage.getItem("admin") != null) {
+        this.admin = false;
+      } else {
+        this.admin = true;
+      }
+    },
     goToMySong() {
       this.$router.push("/mySong");
     },
@@ -127,6 +155,9 @@ export default defineComponent({
       this.$nextTick(() => {
         this.isRefreashPlayer = true;
       });
+    },
+    changeLogin() {
+      this.logined = false;
     },
     reload() {
       this.isRefreash = false;
@@ -153,7 +184,40 @@ export default defineComponent({
       localStorage.removeItem("user");
       this.$router.go(0);
     },
+    goToOwnSpace() {
+      this.$router.push("/ownSpace");
+    },
+    querySearchAsync(queryString, callback) {
+      this.results = []
+       axios({
+        method: "GET",
+        url: "/song/search",
+        params: {
+          state: queryString,
+        },
+      }).then((res) => {
+        var resultArray = this.results;
+        var result = res.data.songs;
+        for (var i = 0; i < result.length; i++) {
+          var object = {
+            value: "",
+            artist: "",
+          };
+          object.value = result[i].songName;
+          object.artist = result[i].songArtist;
+          resultArray.push(object);
+        }
+      });
+      callback(this.results);
+    },
+    handleSelect() {},
   },
+  // watch: {
+  //   state(newValue) {
+  //     console.log(newValue);
+     
+  //   },
+  // },
 });
 </script>
 
@@ -163,6 +227,9 @@ export default defineComponent({
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+em {
+  color: red;
 }
 .userImg {
   display: flex;

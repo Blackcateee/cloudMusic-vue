@@ -53,11 +53,11 @@
         <img
           width="80"
           height="80"
-          src="http://121.40.137.246:9000/cloudmusic/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20220107173357.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=myMinio%2F20220502%2F%2Fs3%2Faws4_request&X-Amz-Date=20220502T080151Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=63ee49ee180a0de6e544ce8042a31d0489d158389d4121ebade58cdda5dcc240"
+          :src="user.userImage"
           alt=""
         />
         <div class="btn">
-          <span class="userName">返雨</span>
+          <span class="userName">{{ user.userNickname }}</span>
           <el-button type="primary" @click="toMySong">我的音乐</el-button>
         </div>
       </div>
@@ -66,21 +66,27 @@
           <p style="font-weight: bold">推荐歌手</p>
           <a href="/#/singer">查看全部></a>
         </div>
-        <div class="singer-card" v-for="item in singer.splice(0,8)" :key="item">
-          <img
-            class="singer-img"
-            :src="item.singerImg.replace('?param=640y300','')"
-            alt=""
-            width="62"
-            height="62"
-          />
-          <div class="content">
-            <span style="padding-top: 5px; font-weight: bold">{{
-              item.singerName
-            }}</span>
-            <span style="padding-top: 10px; font-size: 10px">{{
-              item.singerAlias
-            }}</span>
+        <div
+          class="singer-card"
+          v-for="item in singer.splice(0, 8)"
+          :key="item"
+        >
+          <div @click="goToSingerDetail(item)">
+            <img
+              class="singer-img"
+              :src="item.singerImg.replace('?param=640y300', '')"
+              alt=""
+              width="62"
+              height="62"
+            />
+            <div class="content">
+              <span style="padding-top: 5px; font-weight: bold">{{
+                item.singerName
+              }}</span>
+              <span style="padding-top: 10px; font-size: 10px">{{
+                item.singerAlias
+              }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -158,10 +164,20 @@ export default defineComponent({
     singer: [],
     songSheetByAmount: [],
     logined: false,
+    user: [],
   }),
   mounted() {
     if (localStorage.getItem("user") != null) {
       this.logined = true;
+       axios({
+        method: "GET",
+        url: "/user/getUserInfo",
+        params: {
+          userName: localStorage.getItem("user")
+        }
+      }).then(res => {
+        this.user = res.data;
+      })
     }
     axios({
       method: "GET",
@@ -177,7 +193,7 @@ export default defineComponent({
       this.songSheet = res.data;
       console.log(res.data);
     });
-     axios({
+    axios({
       method: "GET",
       url: "/song/getSingerList",
     }).then((res) => {
@@ -187,8 +203,11 @@ export default defineComponent({
   methods: {
     toMySong() {
       this.$router.push("mySong");
-    }
-  }
+    },
+    goToSingerDetail(item) {
+      this.$router.push(`/singerDetail/${item.singerId}`)
+    },
+  },
 });
 </script>
 

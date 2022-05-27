@@ -137,7 +137,7 @@
             <template #default="scope">
               <el-icon
                 class="playBTN"
-                @click="handleEdit(scope.$index, scope.row)"
+                @click="share(scope.$index, scope.row)"
                 ><share
               /></el-icon>
               <el-icon
@@ -149,7 +149,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <CommentArea />
+      <CommentArea v-if="reload" :songSheetId="songSheetId" />
     </div>
   </div>
   <el-dialog v-model="addSongSheet" title="添加歌单" width="30%">
@@ -208,12 +208,13 @@ export default defineComponent({
     CommentArea,
   },
   data: () => ({
-    songSheetId: "",
+    songSheetId: "0",
     deleteDialogVisible: false,
     input: "",
     logined: false,
     addSongSheet: false,
     mySinger: [],
+    reload: true,
     defaultSongSheet: {
       listId: "",
       listTitle: "我喜欢的音乐",
@@ -247,6 +248,8 @@ export default defineComponent({
     },
     showSongSheet(item) {
       this.sheet = item;
+      this.songSheetId = item.listId;
+      this.reloadComment();
       if (item.listTags != null && !Array.isArray(item.listTags)) {
         this.sheet.listTags = item.listTags
           .replace('["', "")
@@ -263,6 +266,12 @@ export default defineComponent({
       }).then((res) => {
         this.tableData = res.data.songs;
       });
+    },
+    reloadComment() {
+      this.reload = false;
+      this.$nextTick(() => {
+        this.reload = true;
+      })
     },
     add() {
       if (!this.input) {
@@ -313,10 +322,24 @@ export default defineComponent({
         //   "https://p1.music.126.net/G749JuAs4F3UDyqIZ4m3KA==/109951165459761626.jpg?param=200y200";
       });
     },
+    share() {
+      // 这里注释的方式是把url里的路径去掉了，也可以自己修改路径以及添加参数
+      // let invitelink = location.href.replace(this.$route.path,'') + "/register?invitecode="
+      let invitelink = location.href;
+      this.$copyText(invitelink).then(
+        () => {
+          ElMessage.success("连接已复制到粘贴板，分享给朋友吧！"); // 这里可以换成提示信息，比如：已成功复制到剪切板
+        },
+        (err) => {
+          console.log(err); // 同上
+        }
+      );
+    },
     download(row) {
       fetch(row.songUrl)
         .then((res) => res.blob())
         .then((blob) => {
+          ElMessage.success("文件开始下载")
           const a = document.createElement("a");
           document.body.appendChild(a);
           a.style.display = "none";

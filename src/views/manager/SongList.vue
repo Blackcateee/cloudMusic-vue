@@ -1,6 +1,15 @@
 <template>
-  <el-table v-loading="loading" v-if="!isRefreash" :data="tableData" style="width: 100%">
-    <el-table-column type="index" />
+  <el-table
+    v-loading="loading"
+    v-if="!isRefreash"
+    :data="tableData"
+    style="width: 100%"
+  >
+    <el-table-column align="center" type="index" width="100">
+      <template #header>
+        <el-button type="primary" @click="insertSong">添加歌曲</el-button>
+      </template>
+    </el-table-column>
     <el-table-column label="歌曲名字" prop="songName" />
     <el-table-column label="歌曲作者" prop="songArtist" />
     <el-table-column label="歌曲所属专辑" prop="songAlbum" />
@@ -25,12 +34,14 @@
     </el-table-column>
     <el-table-column align="right">
       <template #header>
-        <el-input v-model="search" size="small" placeholder="通过歌曲名字搜索" />
+        <el-input
+          v-model="search"
+          size="small"
+          placeholder="通过歌曲名字搜索"
+        />
       </template>
       <template #default="scope">
-        <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
-          >Edit</el-button
-        >
+        <el-button size="small" @click="handleEdit(scope.row)">Edit</el-button>
         <el-button
           size="small"
           type="danger"
@@ -40,31 +51,55 @@
       </template>
     </el-table-column>
   </el-table>
+  <el-dialog v-model="dialogVisible" width="30%">
+    <EditSong :editItem="editItem" v-if="dialogVisible" />
+  </el-dialog>
 </template>
 <script>
 import axios from "axios";
 import { defineComponent } from "vue";
+import EditSong from "../../components/EditSong.vue";
 
 export default defineComponent({
+  components: {
+    EditSong,
+  },
+  provide() {
+    return {
+      closeDialog: this.closeDialog,
+    };
+  },
   data: () => ({
     loading: false,
     search: "",
     imagesList: [],
     isRereash: true,
     tableData: [],
+    dialogVisible: false,
+    editItem: {},
   }),
   mounted() {
     this.loading = true;
     this.getDatas();
   },
   methods: {
+    closeDialog() {
+      this.dialogVisible = false;
+    },
     reloadTable() {
       this.isRereash = false;
       this.$nextTick(() => {
         this.isRereash = true;
-      })
+      });
     },
-    handleEdit() {},
+    insertSong() {
+      this.dialogVisible = true;
+      this.editItem = {};
+    },
+    handleEdit(item) {
+      this.dialogVisible = true;
+      this.editItem = item;
+    },
     handleDelete() {},
     getDatas() {
       axios({
