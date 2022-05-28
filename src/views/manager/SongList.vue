@@ -112,6 +112,7 @@ export default defineComponent({
         },
       }).then((res) => {
         this.tableData = res.data.songs;
+        this.imagesList = [];
         for (const e of this.tableData) {
           this.imagesList.push(e.songAlbumPicture);
         }

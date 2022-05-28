@@ -12,10 +12,10 @@
         <router-link to="/mySong">我的音乐</router-link>
         <router-link to="">下载客户端</router-link>
         <el-autocomplete
-        v-loading="loading"
+          v-loading="loading"
           v-model="state"
           :fetch-suggestions="querySearchAsync"
-          placeholder="歌曲/歌手/歌单"
+          placeholder="搜一搜"
           @select="handleSelect"
         >
           <template #default="{ item }">
@@ -168,7 +168,7 @@ export default defineComponent({
     play() {
       setTimeout(() => {
         this.$refs.AudioPlayer.playMusic();
-      }, 30);
+      }, 1000);
     },
     login() {
       this.dialogVisible = false;
@@ -188,8 +188,8 @@ export default defineComponent({
       this.$router.push("/ownSpace");
     },
     querySearchAsync(queryString, callback) {
-      this.results = []
-       axios({
+      this.results = [];
+      axios({
         method: "GET",
         url: "/song/search",
         params: {
@@ -202,20 +202,28 @@ export default defineComponent({
           var object = {
             value: "",
             artist: "",
+            songId: "",
           };
           object.value = result[i].songName;
           object.artist = result[i].songArtist;
+          object.songId = result[i].songId;
           resultArray.push(object);
         }
       });
       callback(this.results);
     },
-    handleSelect() {},
+    handleSelect(item) {
+      // for (var i = 0; i < item.length; i++) {
+      //     item[i].songName = item[i].songName.replaceAll("<em>","").replaceAll("</em>","")
+      //   }
+      this.state = item.value.replaceAll("<em>","").replaceAll("</em>","");
+      this.$router.push('/songDetail/'+ item.songId);
+    },
   },
   // watch: {
   //   state(newValue) {
   //     console.log(newValue);
-     
+
   //   },
   // },
 });

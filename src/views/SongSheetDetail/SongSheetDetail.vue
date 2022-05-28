@@ -13,7 +13,7 @@
           <h1>{{ sheet.listTitle }}</h1>
           <p>作者: {{ sheet.listAuthor }} 2022-4-13创建</p>
           <div class="operation">
-            <el-button type="primary"
+            <el-button type="primary" @click="playList"
               ><el-icon><video-play /></el-icon>播放</el-button
             >
             <el-button @click="collectList"
@@ -48,7 +48,9 @@
           <el-table-column type="index" width="50" />
           <el-table-column width="50">
             <template #default="scope">
-              <el-icon class="playBTN" @click="playMusic(scope.row)"
+              <el-icon
+                class="playBTN"
+                @click="playMusic(scope.$index, scope.row)"
                 ><video-play
               /></el-icon>
             </template>
@@ -80,7 +82,21 @@
       </div>
       <CommentArea v-if="refreashCommentArea" :songSheetId="songSheetId" />
     </div>
-    <div v-if="!show" class="recommend">推荐</div>
+    <div v-if="!show" class="recommend">
+      推荐
+      <div v-for="item in myCollection" :key="item.index">
+        <el-menu>
+          <el-menu-item
+            :index="item.listTitle"
+            :tabindex="item.listTitle"
+            @click="showSongSheet(item)"
+          >
+            <img width="40" height="40" :src="item.listImg" alt="" />
+            <span>{{ item.listTitle }}</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
+    </div>
   </div>
   <el-dialog v-model="dialogVisible" width="30%">
     <AddFolder :songId="songId" />
@@ -151,8 +167,10 @@ export default defineComponent({
     ],
     songSheetId: "",
     refreashCommentArea: true,
+    index: 0,
+    myCollection: {},
   }),
-  created(){
+  created() {
     this.songSheetId = this.listId;
   },
   provide() {
@@ -176,14 +194,27 @@ export default defineComponent({
         .replace('"]', "")
         .replaceAll('"', "")
         .split(",");
+      console.log(this.sheet.listTags);
+      axios({
+        method: "GET",
+        url: "/song/searchSongSheetByTags",
+        params: {
+          tags: this.sheet.listTags + "",
+        },
+      }).then((res) => {
+        this.myCollection = res.data;
+      });
     });
   },
   methods: {
+    showSongSheet(item) {
+      this.$router.push("/songSheetDetail/" + item.listId);
+    },
     refreash() {
       this.refreashCommentArea = false;
       this.$nextTick(() => {
         this.refreashCommentArea = true;
-      })
+      });
     },
     downloadList() {
       this.tableData.forEach((e) => {
@@ -234,13 +265,23 @@ export default defineComponent({
         }
       );
     },
-    playMusic(row) {
+    playMusic(index, row) {
+      this.index = index;
+      localStorage.setItem("songIndex", this.index);
       this.$store.commit("audioAttributeMutations", {
         url: row.songUrl,
         name: row.songName,
         picture: row.songAlbumPicture.replaceAll('["', "").replaceAll('"]', ""),
         singer: row.songArtist,
+        songList: this.sheet.listSongs,
       });
+      this.reloadPlayer();
+      this.play();
+    },
+    playList() {
+      this.index = 0;
+      localStorage.setItem("songIndex", this.index);
+      localStorage.setItem("songList", this.sheet.listSongs);
       this.reloadPlayer();
       this.play();
     },
@@ -263,6 +304,11 @@ export default defineComponent({
       } else {
         ElMessage.error("请先登录");
       }
+    },
+  },
+   watch: {
+    listId() {
+      this.$router.go(0);
     },
   },
 });

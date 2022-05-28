@@ -11,7 +11,7 @@
               : item.listAmount
           }}
         </div>
-        <el-icon class="playBTN"><video-play /></el-icon>
+        <el-icon class="playBTN" @click="playList(item)"><video-play /></el-icon>
       </div>
       <a :href="'/#/songSheetDetail/' + item.listId">{{ item.listTitle }}</a>
     </div>
@@ -28,6 +28,19 @@ export default defineComponent({
     VideoPlay,
   },
   props: ["songSheet"],
+  inject: ["reloadPlayer","play"],
+  data:() => ({
+    index: 0,
+  }),
+  methods: {
+     playList(item) {
+      this.index = 0;
+      localStorage.setItem("songIndex", this.index);
+      localStorage.setItem("songList", item.listSongs);
+      this.reloadPlayer();
+      this.play();
+    },
+  }
 });
 </script>
 

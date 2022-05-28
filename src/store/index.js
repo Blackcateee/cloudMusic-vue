@@ -7,6 +7,7 @@ const audioAttributeMutations = (state, data) =>{
     localStorage.setItem("name", data.name);
     localStorage.setItem("picture", data.picture);
     localStorage.setItem("singer", data.singer);
+    localStorage.setItem("songList", data.songList);
 }
 
 export default createStore({
@@ -16,6 +17,7 @@ export default createStore({
       name: "",
       picture: "",
       singer: "",
+      songList: "",
     },
   },
   mutations: {

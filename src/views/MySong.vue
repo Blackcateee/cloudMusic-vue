@@ -85,7 +85,7 @@
           <h1>{{ sheet.listTitle }}</h1>
           <p>作者: {{ sheet.listAuthor }} 2022-4-13创建</p>
           <div class="operation">
-            <el-button type="primary"
+            <el-button type="primary" @click="playList"
               ><el-icon><video-play /></el-icon>播放</el-button
             >
             <el-button disabled="true"
@@ -120,7 +120,9 @@
           <el-table-column type="index" width="50" />
           <el-table-column width="50">
             <template #default="scope">
-              <el-icon class="playBTN" @click="playMusic(scope.row)"
+              <el-icon
+                class="playBTN"
+                @click="playMusic(scope.$index, scope.row)"
                 ><video-play
               /></el-icon>
             </template>
@@ -135,14 +137,10 @@
           <el-table-column prop="songAlbum" label="专辑" width="230" />
           <el-table-column>
             <template #default="scope">
-              <el-icon
-                class="playBTN"
-                @click="share(scope.$index, scope.row)"
+              <el-icon class="playBTN" @click="share(scope.$index, scope.row)"
                 ><share
               /></el-icon>
-              <el-icon
-                class="playBTN"
-                @click="download(scope.row)"
+              <el-icon class="playBTN" @click="download(scope.row)"
                 ><download
               /></el-icon>
             </template>
@@ -226,6 +224,8 @@ export default defineComponent({
     sheet: {},
     tableData: [],
     open: true,
+    index: 0,
+    songList: "",
   }),
   methods: {
     deleteSongSheet(id) {
@@ -265,13 +265,14 @@ export default defineComponent({
         },
       }).then((res) => {
         this.tableData = res.data.songs;
+        this.songList = res.data.songSheet.listSongs;
       });
     },
     reloadComment() {
       this.reload = false;
       this.$nextTick(() => {
         this.reload = true;
-      })
+      });
     },
     add() {
       if (!this.input) {
@@ -295,13 +296,23 @@ export default defineComponent({
     changeIntroduce() {
       this.open = !this.open;
     },
-    playMusic(row) {
+    playMusic(index, row) {
+      this.index = index;
+      localStorage.setItem("songIndex", this.index);
       this.$store.commit("audioAttributeMutations", {
         url: row.songUrl,
         name: row.songName,
         picture: row.songAlbumPicture.replaceAll('["', "").replaceAll('"]', ""),
         singer: row.songArtist,
+        songList: this.songList,
       });
+      this.reloadPlayer();
+      this.play();
+    },
+    playList() {
+      this.index = 0;
+      localStorage.setItem("songIndex", this.index);
+      localStorage.setItem("songList", this.songList);
       this.reloadPlayer();
       this.play();
     },
@@ -315,6 +326,7 @@ export default defineComponent({
       }).then((res) => {
         console.log(res.data);
         this.tableData = res.data.songs;
+        this.songList = res.data.user.userLike;
         this.sheet = this.defaultSongSheet;
         // this.sheet.listTitle = "我喜欢的音乐";
         this.sheet.listAuthor = res.data.user.userName;
@@ -339,7 +351,7 @@ export default defineComponent({
       fetch(row.songUrl)
         .then((res) => res.blob())
         .then((blob) => {
-          ElMessage.success("文件开始下载")
+          ElMessage.success("文件开始下载");
           const a = document.createElement("a");
           document.body.appendChild(a);
           a.style.display = "none";
@@ -374,6 +386,7 @@ export default defineComponent({
       }).then((res) => {
         console.log(res.data);
         this.tableData = res.data.songs;
+        this.songList = res.data.user.userLike;
         this.sheet.listTitle = "我喜欢的音乐";
         this.sheet.listAuthor = res.data.user.userName;
         axios({

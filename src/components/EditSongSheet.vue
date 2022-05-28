@@ -6,11 +6,17 @@
       label-width="120px"
       class="demo-ruleForm"
     >
-      <el-form-item label="歌手名字" prop="singerName">
-        <el-input v-model="item.singerName" type="text" autocomplete="off" />
+      <el-form-item label="歌单名字" prop="listTitle">
+        <el-input v-model="item.listTitle" type="text" autocomplete="off" />
       </el-form-item>
-      <el-form-item label="歌手别名" prop="singerAlias">
-        <el-input v-model="item.singerAlias" type="text" autocomplete="off" />
+      <el-form-item label="歌单作者" prop="listAuthor">
+        <el-input v-model="item.listAuthor" type="text" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="歌单标签" prop="listTags">
+        <el-input v-model="item.listTags" />
+      </el-form-item>
+      <el-form-item label="歌单描述" prop="listDescription">
+        <el-input v-model="item.listDescription" type="textarea" />
       </el-form-item>
       <el-form-item>
         <div class="upload">
@@ -21,8 +27,8 @@
             :on-success="handleAvatarSuccess"
           >
             <img
-              v-if="item.singerImg"
-              :src="item.singerImg"
+              v-if="item.listImg"
+              :src="item.listImg"
               class="avatar"
               width="300"
               height="300"
@@ -40,10 +46,10 @@
   </div>
 </template>
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
+import { Plus } from "@element-plus/icons-vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
-import { Plus } from "@element-plus/icons-vue";
 
 export default defineComponent({
   components: {
@@ -51,24 +57,24 @@ export default defineComponent({
   },
   props: ["editItem"],
   inject: ["closeDialog"],
-  data:() => ({
-    item: {}
+  data: () => ({
+    item: {},
   }),
   mounted() {
     if(this.editItem != null) {
       this.item = this.editItem;
     } else {
-      this.item = {};
+      this.item = {}
     }
   },
   methods: {
      handleAvatarSuccess(res) {
-      this.item.singerImg = res;
+      this.item.listImg = res;
     },
     submitForm() {
       axios({
         method: "POST",
-        url: "/song/insertSinger",
+        url: "/song/insertSongSheet",
         data: this.item,
       }).then(res => {
         if(res.data.success) {
@@ -83,8 +89,7 @@ export default defineComponent({
       this.item = {};
     }
   },
-})
+});
 </script>
 <style scoped>
-
 </style>

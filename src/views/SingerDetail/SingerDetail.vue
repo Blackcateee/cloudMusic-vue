@@ -9,7 +9,7 @@
         <el-table-column type="index" width="80" />
         <el-table-column width="80">
           <template #default="scope">
-            <el-icon class="playBTN" @click="playMusic(scope.row)"
+            <el-icon class="playBTN" @click="playMusic(scope.$index, scope.row)"
               ><video-play
             /></el-icon>
           </template>
@@ -73,6 +73,7 @@ export default defineComponent({
     tableData: [],
     singer: {},
     dialogVisible: false,
+    songList: "",
   }),
   provide() {
     return {
@@ -88,6 +89,13 @@ export default defineComponent({
       },
     }).then((res) => {
       this.tableData = res.data.songs;
+      for(var i =0; i<this.tableData.length; i++) {
+        if(i == this.tableData.length) {
+          this.songList += this.tableData[i].songId;
+        }
+        this.songList += this.tableData[i].songId + ',';
+      }
+      console.log(this.songList)
       this.singer = res.data.singer;
       console.log(this.singer)
     });
@@ -121,12 +129,15 @@ export default defineComponent({
           ElMessage.error("歌曲暂不支持下载");
         });
     },
-    playMusic(row) {
+    playMusic(index, row) {
+      console.log(index)
+      localStorage.setItem("songIndex", index)
       this.$store.commit("audioAttributeMutations", {
         url: row.songUrl,
         name: row.songName,
         picture: row.songAlbumPicture.replaceAll('["', "").replaceAll('"]', ""),
         singer: row.songArtist,
+        songList: this.songList,
       });
       this.reloadPlayer();
       this.play();

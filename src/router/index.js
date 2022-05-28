@@ -14,6 +14,7 @@ import SongSheetList from "../views/manager/SongSheetList.vue"
 import UserList from "../views/manager/UserList.vue"
 import Admin from "../views/Admin.vue"
 import OwnSpace from "../views/OwnSpace.vue"
+import SongDetail from "../views/SongDetail/SongDetail.vue"
 
 const routes = [
   {
@@ -29,6 +30,12 @@ const routes = [
       path: 'singer',
       name: 'Singer',
       component: Singer,
+    },
+    {
+      path: '/songDetail/:songId',
+      name: 'SongDetail',
+      props: true,
+      component: SongDetail,
     },
     {
       path: 'sheet',

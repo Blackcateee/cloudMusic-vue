@@ -5,7 +5,7 @@
         评论<span class="comment-amount">共{{ total }}条评论</span>
       </p>
     </div>
-    <div class="comment-area">
+    <div class="comment-area" v-if="logined">
       <img
         style="margin: 20px"
         width="70"
@@ -21,7 +21,7 @@
         placeholder="评论"
       ></el-input>
     </div>
-    <div class="operate">
+    <div class="operate"  v-if="logined">
       <el-button style="margin-right: 20px" type="primary" @click="addComment"
         >评论</el-button
       >
@@ -69,18 +69,21 @@ export default defineComponent({
     pageSize: 20,
     commentData: [],
     total: "",
+    logined: false,
   }),
   mounted() {
-    axios({
-      method: "GET",
-      url: "/user/getUserInfo",
-      params: {
-        userName: localStorage.getItem("user"),
-      },
-    }).then((res) => {
-      this.user = res.data;
-      console.log(res.data);
-    });
+    if (localStorage.getItem("user") != null) {
+      axios({
+        method: "GET",
+        url: "/user/getUserInfo",
+        params: {
+          userName: localStorage.getItem("user"),
+        },
+      }).then((res) => {
+        this.user = res.data;
+        this.logined = true;
+      });
+    }
     axios({
       method: "POST",
       url: "/user/getComment",

@@ -5,17 +5,23 @@
       :src="url"
       @timeupdate="timeChange"
       @canplay="getAttribute"
-      @play="changeIcon"
-      @pause="changeIcon"
+      @play="changePlayIcon"
+      @pause="changePauseIcon"
       controls="controls"
       hidden="hidden"
-      @ended="playMusic"
+      @ended="nextSong"
     ></audio>
+    <el-icon @click="previousSong" style="cursor: pointer" :size="30"
+      ><DArrowLeft
+    /></el-icon>
     <el-icon v-if="play" style="cursor: pointer" :size="45"
       ><video-play @click="playMusic"
     /></el-icon>
     <el-icon v-if="pause" style="cursor: pointer" :size="45"
       ><video-pause @click="pauseMusic"
+    /></el-icon>
+    <el-icon @click="nextSong" style="cursor: pointer" :size="30"
+      ><DArrowRight
     /></el-icon>
     <img :src="picture" alt="" width="40" height="40" style="margin: 0 20px" />
     <div class="slider">
@@ -39,12 +45,20 @@
 
 <script>
 import { defineComponent } from "vue";
-import { VideoPlay, VideoPause } from "@element-plus/icons-vue";
+import {
+  VideoPlay,
+  VideoPause,
+  DArrowLeft,
+  DArrowRight,
+} from "@element-plus/icons-vue";
+import axios from "axios";
 
 export default defineComponent({
   components: {
     VideoPlay,
     VideoPause,
+    DArrowLeft,
+    DArrowRight,
   },
   data: () => ({
     input: "",
@@ -59,14 +73,77 @@ export default defineComponent({
     singer: "",
     name: "",
     picture: "",
+    songIdList: "",
+    songList: [],
+    index: 0,
   }),
-  created() {
-    this.url = localStorage.getItem("songUrl");
-    this.name = localStorage.getItem("name");
-    this.singer = localStorage.getItem("singer");
-    this.picture = localStorage.getItem("picture");
+  mounted() {
+    this.songIdList = localStorage
+      .getItem("songList")
+      .replaceAll('"', "")
+      .replaceAll("[", "")
+      .replaceAll("]", "");
+    if (this.songIdList != null) {
+      axios({
+        method: "GET",
+        url: "/song/selectSongsInSheet",
+        params: {
+          songList: this.songIdList,
+        },
+      }).then((res) => {
+        this.index = localStorage.getItem("songIndex");
+        this.songList = res.data;
+        this.url = this.songList[this.index].songUrl;
+        this.name = this.songList[this.index].songName;
+        this.singer = this.songList[this.index].songArtist;
+        this.picture = this.songList[this.index].songAlbumPicture
+          .replaceAll('\\"')
+          .replaceAll("[", "")
+          .replaceAll('"', "")
+          .replaceAll("]", "");
+      });
+    }
   },
+  // created() {
+  //   console.log(localStorage.getItem("songList").replaceAll('"', ""));
+  // },
   methods: {
+    previousSong() {
+      this.index = (this.songList.length + this.index - 1)%(this.songList.length)
+      this.url = this.songList[this.index].songUrl;
+      this.name = this.songList[this.index].songName;
+      this.singer = this.songList[this.index].songArtist;
+      this.picture = this.songList[this.index].songAlbumPicture
+        .replaceAll('\\"')
+        .replaceAll("[", "")
+        .replaceAll('"', "")
+        .replaceAll("]", "");
+       setTimeout(() => {
+        this.$refs.audio.play();
+      }, 100)
+    },
+    changePlayIcon() {
+      this.play = false;
+      this.pause = true;
+    },
+    changePauseIcon() {
+      this.pause = false;
+      this.play = true;
+    },
+    nextSong() {
+      this.index = (this.songList.length + this.index + 1)%(this.songList.length)
+      this.url = this.songList[this.index].songUrl;
+      this.name = this.songList[this.index].songName;
+      this.singer = this.songList[this.index].songArtist;
+      this.picture = this.songList[this.index].songAlbumPicture
+        .replaceAll('\\"')
+        .replaceAll("[", "")
+        .replaceAll('"', "")
+        .replaceAll("]", "");
+      setTimeout(() => {
+        this.$refs.audio.play();
+      }, 100)
+    },
     getAttribute() {
       this.durationSec = parseInt(this.$refs.audio.duration % 60);
       this.durationMin = parseInt(this.$refs.audio.duration / 60);
